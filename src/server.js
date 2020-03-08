@@ -8,6 +8,10 @@ const express = require('express'),
 const app = express()
 app.use(errorHandler)
 
+app.get('/test', (req, res) => {
+  res.send('testing')
+})
+
 app.get('/get-random-unplayed-game', asyncRoute(async (req, res) => {
   const binHeaders = {
     'secret-key': process.env.JSON_BIN_KEY,
@@ -36,7 +40,7 @@ app.get('/get-random-unplayed-game', asyncRoute(async (req, res) => {
           format: 'json'
         }
       })).data.response.games
-    } catch {
+    } catch (e) {
       games = binData.games
     }
 
