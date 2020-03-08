@@ -54,8 +54,10 @@ app.get('/get-random-unplayed-game', asyncRoute(async (req, res) => {
   }
 
   const unplayedGames = games.filter(game => game.playtime_forever === 0)
+  const unplayedGame = chance.pickone(unplayedGames)
   res.send({
-    gameId: chance.pickone(unplayedGames).appid
+    id: unplayedGame.appid,
+    name: unplayedGame.name
   })
 }))
 
