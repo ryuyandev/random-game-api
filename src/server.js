@@ -1,11 +1,16 @@
 require('dotenv').config()
 
 const express = require('express'),
+  cors = require('cors'),
   axios = require('axios'),
   chance = require('chance').Chance(),
   { errorHandler, asyncRoute } = require('./helpers')
 
 const app = express()
+
+if (process.env.NODE_ENV != 'production')
+    app.use(cors())
+
 app.use(errorHandler)
 
 app.get('/get-random-unplayed-game', asyncRoute(async (req, res) => {
