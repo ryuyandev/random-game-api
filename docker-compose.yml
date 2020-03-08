@@ -1,0 +1,13 @@
+version: "3"
+networks:
+  default:
+    external:
+      name: nginx_shared
+services:
+  random-game-api:
+    image: ryuyanninja/random-game-api:latest
+    restart: always
+    container_name: random-game-api
+    env_file: .env
+    expose:
+      - $API_PORT
