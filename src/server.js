@@ -13,7 +13,7 @@ if (process.env.NODE_ENV != 'production')
 
 app.use(errorHandler)
 
-app.get('/get-random-unplayed-game', asyncRoute(async (req, res) => {
+const getOwnedGames = async () => {
   const binHeaders = {
     'secret-key': process.env.JSON_BIN_KEY,
     versioning: false
@@ -53,11 +53,38 @@ app.get('/get-random-unplayed-game', asyncRoute(async (req, res) => {
     })
   }
 
-  const unplayedGames = games.filter(game => game.playtime_forever === 0)
+  return games
+}
+
+app.get('/all', asyncRoute(async (req, res) => {
+  const games = await getOwnedGames()
+  const game = chance.pickone(games)
+
+  res.send({
+    id: game.appid,
+    name: game.name
+  })
+}))
+
+app.get('/unplayed', asyncRoute(async (req, res) => {
+  const unplayedGames = (await getOwnedGames())
+    .filter(game => game.playtime_forever === 0)
   const unplayedGame = chance.pickone(unplayedGames)
+
   res.send({
     id: unplayedGame.appid,
     name: unplayedGame.name
+  })
+}))
+
+app.get('/played', asyncRoute(async (req, res) => {
+  const playedGames = (await getOwnedGames())
+    .filter(game => game.playtime_forever > 0)
+  const playedGame = chance.pickone(playedGames)
+
+  res.send({
+    id: playedGame.appid,
+    name: playedGame.name
   })
 }))
 
