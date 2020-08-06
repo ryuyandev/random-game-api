@@ -21,5 +21,5 @@ The project runs in tandem with a Vue.js front end, located [here](https://githu
 To run an instance of this project via docker, run the following command:
 
 ```
-docker run -d --name random-game-api ryuyandev/random-game-api
+docker run -d --name random-game-api --env-file .env ryuyandev/random-game-api
 ```
