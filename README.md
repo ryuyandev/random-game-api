@@ -13,12 +13,16 @@ The project runs in tandem with a Vue.js front end, located [here](https://githu
     - `STEAM_API_KEY=somekey` your [steam api developer key](https://steamcommunity.com/dev)
     - `STEAM_ID=someid` your steam account [SteamID64](https://developer.valvesoftware.com/wiki/SteamID)
     - `API_PORT=1337` the port number you want the API to run on
+    - (OPTIONAL) `REDIS_HOST=host` the location of a Redis server. If present, the API will cache the list of games from steam and only pull an updated list every `CACHE_INTERVAL` minutes
+    - (OPTIONAL) `REDIS_PORT` the port of the Redis server (defaults to 6379)
+    - (OPTIONAL) `REDIS_PASS` the password of the Redis server, if needed
+    - (OPTIONAL) `CACHE_INTERVAL` the number of minutes to cache the data for (defaults to 300, unused if redis is not configured)
 2. Run `npm run dev` to develop locally
 3. Run `npm start` to run in production mode
 
 # Docker Container
 
-To run an instance of this project via docker, run the following command:
+To run an instance of this project via docker, follow step 1 from the above to create a .env file and run the following command:
 
 ```
 docker run -d --name random-game-api --env-file .env ryuyandev/random-game-api
