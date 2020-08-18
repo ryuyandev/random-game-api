@@ -17,8 +17,9 @@ The project runs in tandem with a Vue.js front end, located [here](https://githu
     - (OPTIONAL) `REDIS_PORT` the port of the Redis server (defaults to 6379)
     - (OPTIONAL) `REDIS_PASS` the password of the Redis server, if needed
     - (OPTIONAL) `CACHE_INTERVAL` the number of minutes to cache the data for (defaults to 300, unused if redis is not configured)
-2. Run `npm run dev` to develop locally
-3. Run `npm start` to run in production mode
+2. Run `npm install` to install necessary packages
+3. Run `npm run dev` to develop locally
+4. Run `npm start` to run in production mode
 
 # Docker Container
 
