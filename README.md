@@ -1,5 +1,5 @@
 # Steam Random Game Picker API
-This repository holds the back end for my random game picker project.
+This repository holds the back end for my random game picker project. It returns the name and ID of random game from the Steam library of a user configurable via environment variable. It supports picking from a list of games the user has played, games the user has not played, or all the user's games.
 
 This project was created as an experiment to demonstrate some proficency creating back-end projects with Express.js.
 It is hosted on a virtual Linux server running in the cloud using docker with a CI/CD pipeline that utilizes GitHub Actions, Docker Hub, and [Watchtower](https://github.com/containrrr/watchtower).
