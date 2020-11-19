@@ -50,7 +50,7 @@ async function getOwnedGames() {
 }
 
 const getRandomGame = async filter => {
-  const games = await getOwnedGames()
+  let games = await getOwnedGames()
 
   if (filter)
     games = games.filter(filter)
