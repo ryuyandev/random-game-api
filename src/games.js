@@ -12,11 +12,15 @@ async function getOwnedGames() {
     getAsync = null
 
   if (process.env.REDIS_HOST) {
-    client = redis.createClient({
+    const redisSettings = {
       host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASS
-    })
+      port: process.env.REDIS_PORT || 6379
+    }
+
+    if (process.env.REDIS_PASS)
+      redisSettings.password = process.env.REDIS_PASS
+
+    client = redis.createClient(redisSettings)
 
     getAsync = promisify(client.get).bind(client)
 
