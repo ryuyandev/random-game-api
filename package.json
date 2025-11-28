@@ -5,7 +5,9 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "buildConsoleGameList": "node src/buildConsoleGameList.js",
+    "buildGamePlatformList": "node src/buildGamePlatformList.js"
   },
   "keywords": [],
   "author": "",

@@ -14,7 +14,7 @@ async function getOwnedGames() {
   if (process.env.REDIS_HOST) {
     const redisSettings = {
       host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT || 6379
+      port: process.env.REDIS_PORT || 6379,
     }
 
     if (process.env.REDIS_PASS)
@@ -33,14 +33,15 @@ async function getOwnedGames() {
 
   if (!games.length) {
     try {
-      games = (await axios.get(`https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001`, {
+      const { data: { response } } = await axios.get(`https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001`, {
         params: {
           key: process.env.STEAM_API_KEY,
           steamid: process.env.STEAM_ID,
           include_appinfo: 'true',
-          format: 'json'
+          format: 'json',
         }
-      })).data.response.games
+      })
+      games = response.games
     } catch (e) {
       if (getAsync)
         games = JSON.parse(await getAsync('games'))
@@ -53,7 +54,7 @@ async function getOwnedGames() {
   return games
 }
 
-const getRandomGame = async filter => {
+const getRandomSteamGame = async filter => {
   let games = await getOwnedGames()
 
   if (filter)
@@ -68,5 +69,5 @@ const getRandomGame = async filter => {
 }
 
 module.exports = {
-  getRandomGame
+  getRandomSteamGame,
 }
