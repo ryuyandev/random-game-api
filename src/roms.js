@@ -63,12 +63,7 @@ const getGameImage = async ({ url, res }) => {
   stream.pipe(res)
 }
 
-const testlol = async ({ url, res }) => {
-  return url
-}
-
 module.exports = {
   getRandomConsoleGame,
   getGameImage,
-  testlol,
 }
