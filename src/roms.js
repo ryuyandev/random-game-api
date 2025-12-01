@@ -1,7 +1,7 @@
 const { readFile, readdir } = require('fs/promises')
-const { Readable } = require('stream')
 const path = require('path'),
-  chance = require('chance').Chance();
+  chance = require('chance').Chance(),
+  axios = require('axios');
 
 let supportedPlatforms;
 
@@ -44,23 +44,23 @@ const getGameImage = async ({ url, res }) => {
     throw new Error('invalid host for game image')
   }
 
-  const response = await fetch(targetUrl.toString(), {
+  const response = await axios.get(targetUrl.toString(), {
+    responseType: 'stream',
     headers: {
       Referer: 'https://vimm.net/',
     },
+    validateStatus: () => true,
   })
 
-  if (!response.ok || !response.body) {
-    throw new Error('failed to fetch game image')
+  if (response.status >= 400) {
+    throw new Error('failed to get game image')
   }
 
-  const contentType = response.headers.get('content-type')
-  if (contentType) {
-    res.setHeader('Content-Type', contentType)
+  if (response.headers['content-type']) {
+    res.setHeader('Content-Type', response.headers['content-type'])
   }
 
-  const stream = Readable.fromWeb(response.body)
-  stream.pipe(res)
+  response.data.pipe(res)
 }
 
 module.exports = {
