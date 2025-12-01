@@ -4,7 +4,7 @@ const express = require('express'),
   cors = require('cors'),
   { errorHandler, asyncRoute } = require('./helpers'),
   { getRandomSteamGame } = require('./steamGames'),
-  { getRandomConsoleGame, getGameImage } = require('./roms')
+  { getRandomConsoleGame, getGameImage, testlol } = require('./roms')
   
 
 const app = express()
@@ -32,6 +32,10 @@ app.get('/played', asyncRoute(async (req, res) => {
 app.get('/roms', asyncRoute(async (req, res) => {
   const game = await getRandomConsoleGame({ excludeIds: req.query.excludeIds })
   res.send(game)
+}))
+
+app.get('/roms/test/', asyncRoute(async (req, res) => {
+  res.send(await testlol({ res, url: req.query.url }))
 }))
 
 app.get('/roms/image-proxy', asyncRoute(async (req, res) => {
