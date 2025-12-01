@@ -1,33 +1,69 @@
-const { readFile } = require('fs/promises')
+const { readFile, readdir } = require('fs/promises')
+const { Readable } = require('stream')
 const path = require('path'),
-  chance = require('chance').Chance()
+  chance = require('chance').Chance();
 
-const allowedPlatforms = {
-  'n64': 4,
-  'gb': 33,
-  'gbc': 22,
-  'gba': 24,
-  'nes': 18,
-  'snes': 19,
-  'genesis': 29,
-  'gamegear': 35,
-}
+let supportedPlatforms;
 
-const getRandomConsoleGame = async slug => {
-  if (!slug)
-    slug = chance.pickone(Object.keys(allowedPlatforms))
+const getRandomConsoleGame = async ({ platform, excludeIds }) => {
+  if (!supportedPlatforms) {
+    const dataFileNames = await readdir(path.join(__dirname, 'data'))
+    supportedPlatforms = dataFileNames
+      .filter(name => name.startsWith('gameList_'))
+      .map(name => name.substring(name.indexOf('_') + 1, name.indexOf('.')))
+  }
+  excludeIds = new Set(excludeIds)
 
-  if (!(slug in allowedPlatforms))
+  if (!platform)
+    platform = chance.pickone(supportedPlatforms)
+
+  if (!supportedPlatforms.includes(platform))
     throw new Error('Unknown platform')
 
-  const platforms = JSON.parse(await readFile(path.join(__dirname, 'data/platforms.json')))
-  const games = JSON.parse(await readFile(path.join(__dirname, `data/gameList_${allowedPlatforms[slug]}.json`)))
-  const platform = platforms.find(platform => platform.id === allowedPlatforms[slug])
-  const game = chance.pickone(games)
+  const games = JSON.parse(await readFile(path.join(__dirname, `data/gameList_${platform}.json`)))
+  const filteredGames = games.filter(game => !excludeIds.has(game.id))
+  const game = chance.pickone(filteredGames)
+  game.platform = platform
 
-  return { platform, game }
+  return game
+}
+
+const getGameImage = async ({ url, res }) => {
+  if (!url) {
+    throw new Error('url required for game image')
+  }
+
+  let targetUrl
+  try {
+    targetUrl = new URL(url)
+  } catch {
+    throw new Error('invalid url for game image')
+  }
+
+  if (targetUrl.host !== 'dl.vimm.net') {
+    throw new Error('invalid host for game image')
+  }
+
+  const response = await fetch(targetUrl.toString(), {
+    headers: {
+      Referer: 'https://vimm.net/',
+    },
+  })
+
+  if (!response.ok || !response.body) {
+    throw new Error('failed to fetch game image')
+  }
+
+  const contentType = response.headers.get('content-type')
+  if (contentType) {
+    res.setHeader('Content-Type', contentType)
+  }
+
+  const stream = Readable.fromWeb(response.body)
+  stream.pipe(res)
 }
 
 module.exports = {
   getRandomConsoleGame,
+  getGameImage,
 }

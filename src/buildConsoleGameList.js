@@ -2,32 +2,61 @@ require('dotenv').config()
 const { writeFile } = require('fs/promises')
 const path = require('path')
 const axios = require('axios')
-const { delay, getTwitchAccessToken } = require('./helpers');
+const https = require('https')
+const cheerio = require('cheerio');
 
-const platform = '35';
+const system = 'N64';
 
 (async () => {
-    const accessToken = await getTwitchAccessToken()
-    const games = []
-    let response, offset = 0
-    do {
-        response = await axios.post('https://api.igdb.com/v4/games', `
-            fields name, cover.image_id, screenshots.image_id;
-            where platforms = ${platform};
-            limit 500;
-            offset ${offset};
-        `, {
-            headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'text/plain',
-            }
-        })
-        games.push(...response.data)
-        console.log(`Added ${response.data.length} games to list. ${games.length} total`)
-        offset += 500;
-        await delay(500);
-    } while (response.data.length === 500)
+  const games = []
+  for (let i = 64; i < 91; i++) {
+    const section = i === 64
+      ? 'number'
+      : String.fromCharCode(i)
 
-    await writeFile(path.join(__dirname, `data/gameList_${platform}.json`), JSON.stringify(games))
+    try {
+      // Get current page HTML
+      const response = await axios.get(`https://vimm.net/vault/?p=list&system=${system}&section=${section}`, {
+        httpsAgent: new https.Agent({
+          rejectUnauthorized: false,
+        }),
+      })
+
+      // Load HTML into cheerio
+      const page = cheerio.load(response.data)
+
+      // Extract data from page
+      const data = page.extract({
+        games: [
+            {
+            selector: 'main.mainContent > table tr > td:first-child',
+            value: {
+              name: {
+                selector: 'a',
+                value: 'innerHTML',
+              },
+              id: {
+                selector: 'a',
+                value: el => page(el).attr('href').split('/').pop(),
+              },
+            }
+          },
+        ]
+      })
+
+      // Add detected games to list
+      games.push(...data.games)
+      console.log(`Added ${data.games.length} games to list. ${games.length} total`)
+    } catch (err) {
+      if (err.isAxiosError && err.response?.status === 404) {
+        console.log('No games found')
+        continue
+      } else {
+        console.error(err)
+        return
+      }
+    }
+  }
+
+  await writeFile(path.join(__dirname, `data/gameList_${system.toLowerCase()}.json`), JSON.stringify(games))
 })()
